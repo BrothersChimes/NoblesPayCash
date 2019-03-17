@@ -7,9 +7,10 @@ import (
 	"unicode"
 )
 
-type itemStock struct {
-	qty        int
+type itemType struct {
+	name       string
 	pluralName string
+	isWeapon   bool
 }
 
 const uniqueCustName = "Ulric"
@@ -17,29 +18,36 @@ const uniqueCustName = "Ulric"
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
-	storeStock := map[string]itemStock{
-		"sword":    itemStock{1, "swords"},
-		"trailMix": itemStock{1, "bags of trail mix"},
+	itemTypes := map[string]itemType{
+		"sword":    {"sword", "swords", true},
+		"axe":      {"axe", "axes", true},
+		"trailMix": {"bag of trail mix", "bags of trail mix", false},
 	}
 
-	announceItemQty(storeStock)
+	storeStock := map[string]int{
+		"sword":    1,
+		"axe":      1,
+		"trailMix": 1,
+	}
+
+	announceItemQty(storeStock, itemTypes)
 
 	says(uniqueCustName, "Greetings!")
 	says(uniqueCustName, "I would like to purchase a sword!")
 
-	sellSwords(reader, &storeStock)
+	sellSwords(reader, &storeStock, itemTypes)
 
 	says(uniqueCustName, "I would still like to purchase a sword!")
-	announceItemQty(storeStock)
+	announceItemQty(storeStock, itemTypes)
 
-	sellSwords(reader, &storeStock)
-	announceItemQty(storeStock)
+	sellSwords(reader, &storeStock, itemTypes)
+	announceItemQty(storeStock, itemTypes)
 
 }
 
-func sellSwords(reader *bufio.Reader, stock *map[string]itemStock) {
-	if (*stock)["sword"].qty <= 0 {
-		fmt.Println("You inform " + uniqueCustName + " that you have no swords left for sale.")
+func sellSwords(reader *bufio.Reader, stock *map[string]int, types map[string]itemType) {
+	if (*stock)["sword"] <= 0 {
+		fmt.Println("You inform " + uniqueCustName + " that you have no " + types["sword"].pluralName + " left for sale.")
 		fmt.Println(uniqueCustName + " leaves.")
 
 		return
@@ -53,9 +61,7 @@ func sellSwords(reader *bufio.Reader, stock *map[string]itemStock) {
 	switch answerChar {
 	case 'Y':
 		does(uniqueCustName, "happily takes the sword!")
-		newSwordStock := (*stock)["sword"]
-		newSwordStock.qty--
-		(*stock)["sword"] = newSwordStock
+		(*stock)["sword"]--
 	case 'N':
 		does(uniqueCustName, "is sad you did not sell him the sword.")
 	default:
@@ -63,9 +69,10 @@ func sellSwords(reader *bufio.Reader, stock *map[string]itemStock) {
 	}
 }
 
-func announceItemQty(stock map[string]itemStock) {
-	fmt.Printf("You have %v %s.\n", stock["sword"].qty, stock["sword"].pluralName)
-	fmt.Printf("You have %v %s.\n", stock["trailMix"].qty, stock["trailMix"].pluralName)
+func announceItemQty(stock map[string]int, types map[string]itemType) {
+	fmt.Printf("You have %v %s.\n", stock["sword"], types["sword"].pluralName)
+	fmt.Printf("You have %v %s.\n", stock["axe"], types["axe"].pluralName)
+	fmt.Printf("You have %v %s.\n", stock["trailMix"], types["trailMix"].pluralName)
 }
 
 func does(name, action string) {
