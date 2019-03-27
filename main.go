@@ -30,39 +30,47 @@ func main() {
 		"trailMix": 1,
 	}
 
-	announceItemQty(storeStock, itemTypes)
+	says(uniqueCustName, "Hi, Bailoe!")
 
-	says(uniqueCustName, "Greetings!")
-	says(uniqueCustName, "I would like to purchase a weapon!")
+	customerRequests := []string{"I would like to purchase a weapon!", "I would STILL like to purchase a weapon!", "PLEASE sell me a weapon...", "A weapon, please!"}
+	customerRequestIndex := 0
 
-	sellWeapons(reader, &storeStock, itemTypes)
+	isSatisfied := false
 
-	says(uniqueCustName, "I would still like to purchase a weapon!")
-	announceItemQty(storeStock, itemTypes)
-
-	sellWeapons(reader, &storeStock, itemTypes)
-	announceItemQty(storeStock, itemTypes)
-
+	for !isSatisfied {
+		nextString := customerRequests[customerRequestIndex]
+		announceItemQty(storeStock, itemTypes)
+		says(uniqueCustName, nextString)
+		if customerRequestIndex < len(customerRequests)-1 {
+			customerRequestIndex++
+		}
+		sellWeapons(reader, &storeStock, itemTypes, &isSatisfied)
+	}
+	says(uniqueCustName, "Bye, Mr Celhai.")
+	fmt.Println(uniqueCustName + " leaves.")
 }
 
-func sellWeapons(reader *bufio.Reader, stock *map[string]int, types map[string]itemType) {
+func sellWeapons(reader *bufio.Reader, stock *map[string]int, types map[string]itemType, isSatisfied *bool) {
 	if (*stock)["sword"] <= 0 && (*stock)["axe"] <= 0 {
 		fmt.Println("You inform " + uniqueCustName + " that you have no weapon left for sale.")
-		fmt.Println(uniqueCustName + " leaves.")
+		*isSatisfied = true
 		return
 	}
 
 	fmt.Println("What would you like to sell Ulric?")
-	fmt.Println("[0] Sword")
-	fmt.Println("[1] Axe")
+	fmt.Println("[1] Sword")
+	fmt.Println("[2] Axe")
+	fmt.Println("[0] Nothing")
 
 	answer, _ := reader.ReadString('\n')
 	answerChar := unicode.ToUpper(rune(answer[0]))
 
 	switch answerChar {
 	case '0':
-		sellWeapon(reader, "sword", stock, types)
+		fmt.Println("You decide not to sell anything at this point.")
 	case '1':
+		sellWeapon(reader, "sword", stock, types)
+	case '2':
 		sellWeapon(reader, "axe", stock, types)
 	default:
 		fmt.Println("There is no option for \"" + string(answerChar) + "\".")
@@ -106,5 +114,5 @@ func does(name, action string) {
 }
 
 func says(name, speech string) {
-	fmt.Println(name + " says: " + "\"" + speech + ".\"")
+	fmt.Println(name + " says: " + "\"" + speech + "\"")
 }
