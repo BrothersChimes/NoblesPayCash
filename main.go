@@ -8,17 +8,9 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/BrothersChimes/NoblesPayCash/item"
 )
-
-type itemType struct {
-	name       string
-	pluralName string
-	isWeapon   bool
-}
-
-func (i itemType) getAnswer() bool {
-	return i.isWeapon
-}
 
 type reader struct {
 	*bufio.Reader
@@ -92,11 +84,11 @@ func doSales(reader reader) {
 	transactionLoop(reader, itemTypes, &storeStock)
 }
 
-func shopSetup() (map[string]itemType, map[string]int) {
-	itemTypes := map[string]itemType{
-		"sword":    {"sword", "swords", true},
-		"axe":      {"axe", "axes", true},
-		"trailMix": {"bag of trail mix", "bags of trail mix", false},
+func shopSetup() (map[string]item.ItemType, map[string]int) {
+	itemTypes := map[string]item.ItemType{
+		"sword":    {Name: "sword", PluralName: "swords", IsWeapon: true},
+		"axe":      {Name: "axe", PluralName: "axes", IsWeapon: true},
+		"trailMix": {Name: "bag of trail mix", PluralName: "bags of trail mix", IsWeapon: false},
 	}
 
 	storeStock := map[string]int{
@@ -108,7 +100,7 @@ func shopSetup() (map[string]itemType, map[string]int) {
 	return itemTypes, storeStock
 }
 
-func transactionLoop(reader reader, itemTypes map[string]itemType, storeStock *map[string]int) {
+func transactionLoop(reader reader, itemTypes map[string]item.ItemType, storeStock *map[string]int) {
 	says(uniqueCustName, "Hi, Bailoe!")
 
 	customerRequests := []string{"I would like to purchase a weapon!", "I would STILL like to purchase a weapon!", "PLEASE sell me a weapon...", "A weapon, please!"}
@@ -129,7 +121,7 @@ func transactionLoop(reader reader, itemTypes map[string]itemType, storeStock *m
 	fmt.Println(uniqueCustName + " leaves.")
 }
 
-func sellWeapons(reader answerProvider, stock *map[string]int, types map[string]itemType, isSatisfied *bool) {
+func sellWeapons(reader answerProvider, stock *map[string]int, types map[string]item.ItemType, isSatisfied *bool) {
 	if (*stock)["sword"] <= 0 && (*stock)["axe"] <= 0 {
 		fmt.Println("You inform " + uniqueCustName + " that you have no weapon left for sale.")
 		*isSatisfied = true
@@ -153,13 +145,12 @@ func sellWeapons(reader answerProvider, stock *map[string]int, types map[string]
 
 }
 
-func sellWeapon(reader yesNoAnswerProvider, weapon string, stock *map[string]int, types map[string]itemType) {
-	weaponName := types[weapon].name
-	weaponPluralName := types[weapon].pluralName
+func sellWeapon(reader yesNoAnswerProvider, weapon string, stock *map[string]int, types map[string]item.ItemType) {
+	weaponName := types[weapon].Name
+	weaponPluralName := types[weapon].PluralName
 
 	if (*stock)[weapon] <= 0 {
 		fmt.Println("You have no " + weaponPluralName + " left for sale.")
-		return
 	}
 
 	fmt.Println("Would you like to sell Ulric a " + weaponName + "? (y/n)")
@@ -174,10 +165,10 @@ func sellWeapon(reader yesNoAnswerProvider, weapon string, stock *map[string]int
 	}
 }
 
-func announceItemQty(stock map[string]int, types map[string]itemType) {
-	fmt.Printf("You have %v %s.\n", stock["sword"], types["sword"].pluralName)
-	fmt.Printf("You have %v %s.\n", stock["axe"], types["axe"].pluralName)
-	fmt.Printf("You have %v %s.\n", stock["trailMix"], types["trailMix"].pluralName)
+func announceItemQty(stock map[string]int, types map[string]item.ItemType) {
+	fmt.Printf("You have %v %s.\n", stock["sword"], types["sword"].PluralName)
+	fmt.Printf("You have %v %s.\n", stock["axe"], types["axe"].PluralName)
+	fmt.Printf("You have %v %s.\n", stock["trailMix"], types["trailMix"].PluralName)
 }
 
 func does(name, action string) {
