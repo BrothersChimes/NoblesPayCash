@@ -3,68 +3,18 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
-	"strconv"
-	"strings"
-	"unicode"
 
+	"github.com/BrothersChimes/NoblesPayCash/customer"
 	"github.com/BrothersChimes/NoblesPayCash/item"
 )
 
-type reader struct {
-	*bufio.Reader
-}
-
-func (r reader) getAnswer() bool {
-	for true {
-		fmt.Println("Please enter (y/n)")
-		answer, _ := r.ReadString('\n')
-		answerChar := unicode.ToUpper(rune(answer[0]))
-		switch answerChar {
-		case 'Y':
-			return true
-		case 'N':
-			return false
-		default:
-			fmt.Println("That character was not understood.")
-		}
-	}
-	return false
-}
-
-func (r reader) getSelection(maxSelect int) int {
-	for true {
-		fmt.Println("Please enter a number.")
-		answer, _ := r.ReadString('\n')
-		answerNum, err := strconv.Atoi(strings.TrimSpace(answer))
-		if err != nil {
-			log.Fatal(err)
-			fmt.Println("That entry was not understood.")
-			continue
-		}
-
-		if answerNum >= maxSelect {
-			fmt.Println("That number is too high.")
-			continue
-		}
-
-		if answerNum < 0 {
-			fmt.Println("Please enter a non-negative number.")
-			continue
-		}
-
-		return answerNum
-	}
-	return 0
-}
-
 type yesNoAnswerProvider interface {
-	getAnswer() bool
+	GetAnswer() bool
 }
 
 type numericalSelectionProvider interface {
-	getSelection(maxSelect int) int
+	GetSelection(maxSelect int) int
 }
 
 type answerProvider interface {
@@ -75,11 +25,11 @@ type answerProvider interface {
 const uniqueCustName = "Ulric"
 
 func main() {
-	reader := reader{bufio.NewReader(os.Stdin)}
+	reader := customer.Reader{Reader: bufio.NewReader(os.Stdin)}
 	doSales(reader)
 }
 
-func doSales(reader reader) {
+func doSales(reader answerProvider) {
 	itemTypes, storeStock := shopSetup()
 	transactionLoop(reader, itemTypes, &storeStock)
 }
@@ -100,7 +50,7 @@ func shopSetup() (map[string]item.ItemType, map[string]int) {
 	return itemTypes, storeStock
 }
 
-func transactionLoop(reader reader, itemTypes map[string]item.ItemType, storeStock *map[string]int) {
+func transactionLoop(reader answerProvider, itemTypes map[string]item.ItemType, storeStock *map[string]int) {
 	says(uniqueCustName, "Hi, Bailoe!")
 
 	customerRequests := []string{"I would like to purchase a weapon!", "I would STILL like to purchase a weapon!", "PLEASE sell me a weapon...", "A weapon, please!"}
@@ -133,7 +83,7 @@ func sellWeapons(reader answerProvider, stock *map[string]int, types map[string]
 	fmt.Println("[2] Axe")
 	fmt.Println("[0] Nothing")
 
-	selection := reader.getSelection(3)
+	selection := reader.GetSelection(3)
 	switch selection {
 	case 0:
 		fmt.Println("You decide not to sell anything at this point.")
@@ -155,7 +105,7 @@ func sellWeapon(reader yesNoAnswerProvider, weapon string, stock *map[string]int
 
 	fmt.Println("Would you like to sell Ulric a " + weaponName + "? (y/n)")
 
-	answer := reader.getAnswer()
+	answer := reader.GetAnswer()
 
 	if answer {
 		does(uniqueCustName, "happily takes the "+weaponName+".")
