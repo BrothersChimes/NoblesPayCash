@@ -3,16 +3,17 @@ package customer
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"unicode"
 )
 
+// Reader is a wrapper on bufio.Reader
 type Reader struct {
 	*bufio.Reader
 }
 
+// GetAnswer gets a yes or no answer from the user
 func (r Reader) GetAnswer() bool {
 	for true {
 		fmt.Println("Please enter (y/n)")
@@ -30,13 +31,13 @@ func (r Reader) GetAnswer() bool {
 	return false
 }
 
+// GetSelection gets a number from the user
 func (r Reader) GetSelection(maxSelect int) int {
 	for true {
 		fmt.Println("Please enter a number.")
 		answer, _ := r.ReadString('\n')
 		answerNum, err := strconv.Atoi(strings.TrimSpace(answer))
 		if err != nil {
-			log.Fatal(err)
 			fmt.Println("That entry was not understood.")
 			continue
 		}
