@@ -14,23 +14,31 @@ type Human interface {
 	GoHome() string
 }
 
+type GoldHaver struct {
+	gold 		int
+}
+
+type Glutton struct {
+	GoldHaver
+}
+
 type shopkeeper struct {
-	gold		int
+	GoldHaver
+	Glutton
 	items		map[string]bool
 	shop		string
 }
 
 type adventurer struct {
-	gold		int
+	GoldHaver
 	home		string
 	items		[]string
 	location	string
 	weapon		string
 }
 
-
-func (s *shopkeeper) Gold() int{
-	return s.gold
+func (g *GoldHaver) Gold() int {
+	return g.gold
 }
 
 func (s *shopkeeper) GoHome() string {
@@ -68,10 +76,6 @@ func (a *adventurer) GoHome() string {
 	return a.location
 }
 
-func (a *adventurer) Gold() int {
-	return a.gold
-}
-
 func (a *adventurer) RemoveGold(amt int) int {
 	//adventurer loses amt gold		returns remainder
 	a.gold -= amt
@@ -97,10 +101,10 @@ func GoHomeCountMoney(h Human) {
 }
 
 func main() {
-	dirk := &adventurer{home: "town", location: "goblin caves", gold: 10}
-	shillelagh := &shopkeeper{shop: "Shilling Staves", gold: 1000, items: map[string]bool{"Longstaff": true, "Blackstaff": true}}
+	dirk := &adventurer{GoldHaver: GoldHaver{gold: 10}, home: "town", location: "goblin caves" }
+	shillelagh := &shopkeeper{GoldHaver: GoldHaver{gold: 1000}, shop: "Shilling Staves", items: map[string]bool{"Longstaff": true, "Blackstaff": true}}
 	log("Dirk the Adventurer has arrived in " + dirk.GoHome());
-	log("Dirk the Adventurer has " + strconv.Itoa(dirk.Gold()) + "GP");
+	log("Dirk the Adventurer has " + strconv.Itoa(dirk.GoldHaver.Gold()) + "GP");
 	log("Dirk the Adventurer has bought a " + dirk.BuyItem("sword"));
 	log("Dirk the Adventurer has " + strconv.Itoa(dirk.Gold()) + "GP");
 	log("Dirk the Adventurer has left town");
