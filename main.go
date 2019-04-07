@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"os"
 
-	"github.com/BrothersChimes/NoblesPayCash/input"
-	"github.com/BrothersChimes/NoblesPayCash/shop"
+	"github.com/brotherschimes/noblespaycash/input"
+	"github.com/brotherschimes/noblespaycash/shop"
 )
 
 func main() {

@@ -1,10 +1,13 @@
 package shop
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
-	"github.com/BrothersChimes/NoblesPayCash/item"
-	"github.com/BrothersChimes/NoblesPayCash/selection"
+	"github.com/brotherschimes/noblespaycash/input"
+	"github.com/brotherschimes/noblespaycash/item"
+	"github.com/brotherschimes/noblespaycash/selection"
 )
 
 const uniqueCustName = "Ulric"
@@ -112,4 +115,9 @@ func does(name, action string) {
 
 func says(name, speech string) {
 	fmt.Println(name + " says: " + "\"" + speech + "\"")
+}
+
+func main() {
+	reader := input.Reader{Reader: bufio.NewReader(os.Stdin)}
+	DoSales(reader)
 }
