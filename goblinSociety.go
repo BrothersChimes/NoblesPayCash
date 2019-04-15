@@ -3,9 +3,19 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"math/rand"
+	"time"
 )
 
-func log(output	string) {
+func Initialize() {
+	rand.Seed(time.Now().Unix())
+}
+
+func SystemLog(output	string) {
+	fmt.Println(output)
+}
+
+func PlayerLog(output	string) {
 	fmt.Println(output)
 }
 
@@ -20,7 +30,9 @@ type Squad struct {
 }
 
 type GoblinSociety struct {
-	squads []*Squad
+	squads        []*Squad
+	clutch        []*child
+	spawnProgress int
 }
 
 func (goblin *Goblin) GetInventory() map[string]int {
@@ -52,7 +64,7 @@ func (society *GoblinSociety) GetInventory() map[string]int {
 func (society *GoblinSociety) ListItems() {
 	items := society.GetInventory()
 	for k, v := range items {
-		log(k + " : " + strconv.Itoa(v));
+		SystemLog(k + " : " + strconv.Itoa(v));
 	}
 }
 
@@ -68,7 +80,51 @@ func (society *GoblinSociety) CountItem(itemName string) int {
 	return count
 }
 
+type child struct {
+	name             string
+	growthPercentage int
+}
+
+func (society *GoblinSociety) spawnChild() {
+	birthName := GetRandomGoblinName()
+	wretchling := child{name: birthName, growthPercentage: 0}
+	society.clutch = append(society.clutch, &wretchling)
+	SystemLog("A wretchling named " + wretchling.name + " has been born.")
+}
+
+func GetRandomGoblinName() string {
+	names := []string{"Wrterc", "Jonatan", "Rrgal",}
+	return names[rand.Intn(len(names))]
+}
+
+func (squad *Squad) getSize() int {
+	return len(squad.members)
+}
+
+func (society *GoblinSociety) getSize() int {
+	totalGoblins := 0
+	for _, squad := range society.squads {
+		totalGoblins += squad.getSize()
+	}
+	return totalGoblins
+}
+
+func (society *GoblinSociety) spawnChildren() {
+	spawnThreshold := 100
+	goblinFertility := 5
+	society.spawnProgress += goblinFertility * society.getSize()
+	for society.spawnProgress >= spawnThreshold {
+		society.spawnChild()
+		society.spawnProgress -= spawnThreshold
+	}
+}
+
+func (society *GoblinSociety) PassDay() {
+	society.spawnChildren()
+}
+
 func main() {
+	Initialize()
 	goblinItems := map[string]int{
 		"spears": 1,
 		"meat": 5,
@@ -79,10 +135,10 @@ func main() {
 	skinsquad := Squad{members: squadMembers}
 	squads := []*Squad{&skinsquad}
 	skinSociety := GoblinSociety{squads: squads}
-	for i := 1;  i < 5; i++ {
+	for i := 1;  i < 40; i++ {
 		// main world loop
-		log("a day has passed")
-		
+		SystemLog("a day has passed")
+		skinSociety.PassDay()
 	}
 	skinSociety.ListItems()
 
