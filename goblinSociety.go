@@ -9,39 +9,82 @@ func log(output	string) {
 	fmt.Println(output)
 }
 
+type Goblin struct {
+	name      string
+	inventory map[string]int
+	job       string
+}
+
+type Squad struct {
+	members []*Goblin
+}
+
 type GoblinSociety struct {
-	totalGoblins int
-	inventory	 map[string]int
+	squads []*Squad
 }
 
-func (gS *GoblinSociety) GainItem(itemName string, number int) {
-	gS.Inventory[itemName] += number
-	return gS.Inventory[itemName]
-
+func (goblin *Goblin) GetInventory() map[string]int {
+	return goblin.inventory
 }
 
-func (gS *GoblinSociety) HasItem(itemName string) bool {
-	_, 
-	return 0
+func (squad *Squad) GetInventory() map[string]int {
+	squadInventory := make(map[string]int)
+	for _, goblin := range squad.members {
+		goblinInventory := goblin.GetInventory()
+		for itemName, itemCount := range goblinInventory {
+			squadInventory[itemName] += itemCount
+		}
+	}
+	return squadInventory
 }
 
-func ListItems
-	for k, v := range gS.inventory {
+func (society *GoblinSociety) GetInventory() map[string]int {
+	societyInventory := make(map[string]int)
+	for _, squad := range society.squads {
+		squadInventory := squad.GetInventory()
+		for itemName, itemCount := range squadInventory {
+			societyInventory[itemName] += itemCount
+		}
+	}
+	return societyInventory
+}
+
+func (society *GoblinSociety) ListItems() {
+	items := society.GetInventory()
+	for k, v := range items {
 		log(k + " : " + strconv.Itoa(v));
 	}
 }
 
+func (society *GoblinSociety) HasItem(itemName string) bool {
+	inventory := society.GetInventory()
+	_, found := inventory[itemName]
+	return found
+}
+
+func (society *GoblinSociety) CountItem(itemName string) int {
+	inventory := society.GetInventory()
+	count := inventory[itemName]
+	return count
+}
+
 func main() {
 	goblinItems := map[string]int{
-		"axe": 1,
-		"meat": 20,
+		"spears": 1,
+		"meat": 5,
 		"sticks": 20,
 	}
-	grump := &GoblinSociety{totalGoblins:9, inventory:GoblinItems}
+	skinnard := Goblin{name: "skinnard", inventory: goblinItems, job: "skinner"}
+	squadMembers := []*Goblin{&skinnard}
+	skinsquad := Squad{members: squadMembers}
+	squads := []*Squad{&skinsquad}
+	skinSociety := GoblinSociety{squads: squads}
 	for i := 1;  i < 5; i++ {
 		// main world loop
 		log("a day has passed")
 		
 	}
+	skinSociety.ListItems()
+
 }
 
