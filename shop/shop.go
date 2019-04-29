@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/brotherschimes/noblespaycash/input"
 	"github.com/brotherschimes/noblespaycash/item"
@@ -65,7 +66,19 @@ func SellWeapons(provider selection.AnswerProvider, stock *map[string]int, types
 		return
 	}
 
+	SellWeaponsFoo(provider, stock, types, isSatisfied)
+}
+
+// SellWeaponsFoo ...
+func SellWeaponsFoo(provider selection.AnswerProvider, stock *map[string]int, types map[string]item.Type, isSatisfied *bool) {
 	fmt.Println("What would you like to sell Ulric?")
+
+	i := 1
+	for _, item := range types {
+		fmt.Printf("[%v] %s\n", i, strings.Title(item.Name))
+		i++
+	}
+	fmt.Println("Bla")
 	fmt.Println("[1] Sword")
 	fmt.Println("[2] Axe")
 	fmt.Println("[0] Nothing")
@@ -79,7 +92,6 @@ func SellWeapons(provider selection.AnswerProvider, stock *map[string]int, types
 	case 2:
 		SellWeapon(provider, "axe", stock, types)
 	}
-
 }
 
 // SellWeapon tries to sell a single weapon
@@ -104,9 +116,9 @@ func SellWeapon(provider selection.YesNoAnswerProvider, weapon string, stock *ma
 }
 
 func announceItemQty(stock map[string]int, types map[string]item.Type) {
-	fmt.Printf("You have %v %s.\n", stock["sword"], types["sword"].PluralName)
-	fmt.Printf("You have %v %s.\n", stock["axe"], types["axe"].PluralName)
-	fmt.Printf("You have %v %s.\n", stock["trailMix"], types["trailMix"].PluralName)
+	for name, qty := range stock {
+		fmt.Printf("You have %v %s.\n", qty, types[name].PluralName)
+	}
 }
 
 func does(name, action string) {
