@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/brotherschimes/noblespaycash/input"
@@ -69,29 +70,48 @@ func SellWeapons(provider selection.AnswerProvider, stock *map[string]int, types
 	SellWeaponsFoo(provider, stock, types, isSatisfied)
 }
 
+func sortedKeys(stock *map[string]int) []string {
+	keys := make([]string, len(*stock))
+
+	i := 0
+	for k := range *stock {
+		keys[i] = k
+		i++
+	}
+
+	sort.Strings(keys)
+	return keys
+}
+
 // SellWeaponsFoo ...
 func SellWeaponsFoo(provider selection.AnswerProvider, stock *map[string]int, types map[string]item.Type, isSatisfied *bool) {
 	fmt.Println("What would you like to sell Ulric?")
 
+	map2 := map[string]int{}
+
+	/* Copy Content from Map1 to Map2*/
+	for key, value := range *stock {
+		if value > 0 {
+			map2[key] = value
+		}
+	}
+
 	i := 1
-	for _, item := range types {
-		fmt.Printf("[%v] %s\n", i, strings.Title(item.Name))
+	keys := sortedKeys(&map2)
+	for _, key := range keys {
+		fmt.Printf("[%v] %s\n", i, strings.Title(types[key].Name))
 		i++
 	}
-	fmt.Println("Bla")
-	fmt.Println("[1] Sword")
-	fmt.Println("[2] Axe")
 	fmt.Println("[0] Nothing")
 
-	selection := provider.GetSelection(3)
-	switch selection {
-	case 0:
+	selection := provider.GetSelection(len(keys) + 1)
+
+	if selection == 0 {
 		fmt.Println("You decide not to sell anything at this point.")
-	case 1:
-		SellWeapon(provider, "sword", stock, types)
-	case 2:
-		SellWeapon(provider, "axe", stock, types)
+		return
 	}
+
+	SellWeapon(provider, keys[selection-1], stock, types)
 }
 
 // SellWeapon tries to sell a single weapon
@@ -101,6 +121,12 @@ func SellWeapon(provider selection.YesNoAnswerProvider, weapon string, stock *ma
 
 	if (*stock)[weapon] <= 0 {
 		fmt.Println("You have no " + weaponPluralName + " left for sale.")
+		return
+	}
+
+	if !types[weapon].IsWeapon {
+		fmt.Printf("Ulric asks how he is meant to kill goblins with a %s? ", weaponName)
+		return
 	}
 
 	fmt.Println("Would you like to sell Ulric a " + weaponName + "? (y/n)")
