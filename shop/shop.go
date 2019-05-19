@@ -30,9 +30,9 @@ type StockItem struct {
 func Setup() []StockItem {
 	stock := make([]StockItem, 3)
 
-	stock[0] = StockItem{&item.Type{Name: "sword", PluralName: "swords", UseAn: false, IsWeapon: true}, 1}
-	stock[1] = StockItem{&item.Type{Name: "axe", PluralName: "axes", UseAn: true, IsWeapon: true}, 1}
-	stock[2] = StockItem{&item.Type{Name: "bag of trail mix", UseAn: false, PluralName: "bags of trail mix", IsWeapon: false}, 1}
+	stock = append(stock, StockItem{&item.Type{Name: "sword", PluralName: "swords", UseAn: false, IsWeapon: true}, 1})
+	stock = append(stock, StockItem{&item.Type{Name: "axe", PluralName: "axes", UseAn: true, IsWeapon: true}, 1})
+	stock = append(stock, StockItem{&item.Type{Name: "bag of trail mix", UseAn: false, PluralName: "bags of trail mix", IsWeapon: false}, 1})
 
 	return stock
 }
