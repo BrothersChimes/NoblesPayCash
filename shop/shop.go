@@ -59,7 +59,7 @@ func TransactionLoop(provider selection.AnswerProvider, stock []StockItem) {
 	fmt.Println(uniqueCustName + " leaves.")
 }
 
-// SellWeapons provides a list of available weapons and asks which one should be sold
+// SellWeapons provides a list of available items and asks which one should be sold, but doesn't allow selling anything if there are no weapons
 func SellWeapons(provider selection.AnswerProvider, stock []StockItem) (isSoldOut bool) {
 
 	isSoldOut = true
@@ -74,7 +74,7 @@ func SellWeapons(provider selection.AnswerProvider, stock []StockItem) (isSoldOu
 		return isSoldOut
 	}
 
-	SellWeaponsFoo(provider, stock)
+	SellAvailableWeapons(provider, stock)
 	return isSoldOut
 }
 
@@ -91,30 +91,30 @@ func sortedKeys(stock *map[string]int) []string {
 	return keys
 }
 
-// SellWeaponsFoo ...
-func SellWeaponsFoo(provider selection.AnswerProvider, stock []StockItem) {
+// SellAvailableWeapons sells those weapons which are in stock
+func SellAvailableWeapons(provider selection.AnswerProvider, stock []StockItem) {
 	fmt.Printf("What would you like to sell %s?\n", uniqueCustName)
 
-	stock2 := make([]*StockItem, len(stock)+1)
+	stockInStock := make([]*StockItem, len(stock)+1)
 
 	i := 1
 	for j, item := range stock {
 		if item.qty > 0 {
-			stock2[i] = &stock[j]
+			stockInStock[i] = &stock[j]
 			fmt.Printf("[%v] %s\n", i, strings.Title(item.Name))
 			i++
 		}
 	}
 	fmt.Println("[0] Nothing")
 
-	selection := provider.GetSelection(len(stock2))
+	selection := provider.GetSelection(len(stockInStock))
 
 	if selection == 0 {
 		fmt.Println("You decide not to sell anything at this point.")
 		return
 	}
 
-	SellWeapon(provider, stock2[selection])
+	SellWeapon(provider, stockInStock[selection])
 }
 
 // SellWeapon tries to sell a single weapon
